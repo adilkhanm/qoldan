@@ -12,6 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -56,14 +59,17 @@ public class ProductService {
         User user = userRepo.findByEmail(productDto.getOwnerEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         Product product = mapper.mapDtoToProduct(productDto, category, user);
+        product.setDatePosted(new Date());
         repo.save(product);
     }
 
     public void editProduct(ProductDto productDto) {
+        Product oldProduct = repo.findById(productDto.getId());
         Category category = categoryRepo.findById(productDto.getCategoryId());
         User user = userRepo.findByEmail(productDto.getOwnerEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         Product product = mapper.mapDtoToProduct(productDto, category, user);
+        product.setDatePosted(oldProduct.getDatePosted());
         repo.save(product);
     }
 

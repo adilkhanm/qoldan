@@ -17,6 +17,7 @@ public class ProductDto {
     private Integer price;
     private Integer quantity;
     private String imageUrl;
+    private String datePosted;
 
     private String ownerEmail;
     private String ownerName;

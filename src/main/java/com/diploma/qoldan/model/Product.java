@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -23,6 +25,7 @@ public class Product {
     private Integer price;
     private Integer quantity;
     private String imageUrl;
+    private Date datePosted;
 
     @ManyToOne
     @JoinColumn(name = "owner_id")
