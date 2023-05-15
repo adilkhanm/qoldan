@@ -54,13 +54,14 @@ public class ProductService {
                 .toList();
     }
 
-    public void createProduct(ProductDto productDto) {
+    public Long createProduct(ProductDto productDto) {
         Category category = categoryRepo.findById(productDto.getCategoryId());
         User user = userRepo.findByEmail(productDto.getOwnerEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         Product product = mapper.mapDtoToProduct(productDto, category, user);
         product.setDatePosted(new Date());
         repo.save(product);
+        return product.getId();
     }
 
     public void editProduct(ProductDto productDto) {

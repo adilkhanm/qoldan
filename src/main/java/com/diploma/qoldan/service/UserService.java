@@ -9,6 +9,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -33,5 +36,13 @@ public class UserService {
         user.setMobile(userDto.getMobile());
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         repo.save(user);
+    }
+
+    public List<UserDto> getUsers() {
+        List<User> users = repo.findAll();
+        return users
+                .stream()
+                .map(mapper::mapUserToDto)
+                .collect(Collectors.toList());
     }
 }
