@@ -13,6 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/cart")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:5001/")
 public class CartController {
 
     private final CartItemService service;
