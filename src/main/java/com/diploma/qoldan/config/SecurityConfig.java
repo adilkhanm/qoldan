@@ -25,18 +25,22 @@ public class SecurityConfig {
                 .csrf()
                 .disable()
                 .authorizeHttpRequests()
+
                 .requestMatchers("/auth/**")
-                .permitAll()
+                    .permitAll()
+
                 .requestMatchers(HttpMethod.GET, "/product", "/category")
-                .permitAll()
+                    .permitAll()
+
                 .anyRequest()
-                .authenticated()
+                    .authenticated()
                 .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                    .sessionManagement()
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
