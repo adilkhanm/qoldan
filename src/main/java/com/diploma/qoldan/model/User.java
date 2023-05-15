@@ -1,6 +1,8 @@
 package com.diploma.qoldan.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,10 +26,16 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @NotBlank
     private String firstname;
+
+    @NotBlank
     private String lastname;
 
+    @Email
     private String email;
+
+    @NotBlank
     private String password;
 
     private String mobile;

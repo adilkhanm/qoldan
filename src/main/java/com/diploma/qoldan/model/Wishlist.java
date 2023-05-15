@@ -1,12 +1,11 @@
 package com.diploma.qoldan.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Set;
 
 @Data
 @Builder
@@ -22,10 +21,12 @@ public class Wishlist {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @NotNull
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
+    @NotNull
     private Product product;
 
 }
