@@ -24,26 +24,26 @@ public class TagController {
     private final TagService service;
 
     @GetMapping
-    public ResponseEntity<?> getTags() {
+    public ResponseEntity<List<TagDto>> getTags() {
         List<TagDto> tagDtoList = service.getTags();
         return ResponseEntity.ok(tagDtoList);
     }
 
     @PostMapping
-    public ResponseEntity<?> createTag(@RequestBody TagDto tagDto) throws TagExistsException {
+    public ResponseEntity<Long> createTag(@RequestBody TagDto tagDto) throws TagExistsException {
         Long id = service.createTag(tagDto);
         return ResponseEntity.ok(id);
     }
 
     @PutMapping ("/{id}")
-    public ResponseEntity<?> updateTag(@PathVariable("id") Long tagId, @RequestBody TagDto tagDto) throws TagNotFoundException {
+    public ResponseEntity<String> updateTag(@PathVariable("id") Long tagId, @RequestBody TagDto tagDto) throws TagNotFoundException {
         tagDto.setId(tagId);
         service.updateTag(tagDto);
         return ResponseEntity.ok("Tag was successfully updated");
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteTag(@PathVariable("id") Long tagId) throws TagNotFoundException {
+    public ResponseEntity<String> deleteTag(@PathVariable("id") Long tagId) throws TagNotFoundException {
         service.deleteTagById(tagId);
         return ResponseEntity.ok("Tag was successfully deleted");
     }

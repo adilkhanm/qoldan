@@ -19,13 +19,13 @@ public class ProductTypeController {
     private final ProductTypeService service;
 
     @GetMapping
-    public ResponseEntity<?> getProductTypes() {
+    public ResponseEntity<List<ProductTypeDto>> getProductTypes() {
         List<ProductTypeDto> productTypeDtoList = service.getProductTypes();
         return ResponseEntity.ok(productTypeDtoList);
     }
 
     @PostMapping
-    public ResponseEntity<?> createProductType(
+    public ResponseEntity<Long> createProductType(
             @RequestBody ProductTypeDto productTypeDto)
             throws ProductTypeExistsException {
         Long id = service.createProductType(productTypeDto);
@@ -33,7 +33,7 @@ public class ProductTypeController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateProductType(
+    public ResponseEntity<String> updateProductType(
             @PathVariable("id") Long productTypeId,
             @RequestBody ProductTypeDto productTypeDto)
             throws ProductTypeNotFoundException {
@@ -43,7 +43,7 @@ public class ProductTypeController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteProductType(@PathVariable("id") Long productTypeId)
+    public ResponseEntity<String> deleteProductType(@PathVariable("id") Long productTypeId)
             throws ProductTypeNotFoundException {
         service.deleteProductTypeById(productTypeId);
         return ResponseEntity.ok("Product type was successfully deleted");

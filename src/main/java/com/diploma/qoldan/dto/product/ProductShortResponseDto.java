@@ -17,4 +17,6 @@ public class ProductShortResponseDto {
     private Integer price;
     private String img;
     private Date date;
+    private Boolean inWishlist;
+    private Boolean inCart;
 }

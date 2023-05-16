@@ -4,7 +4,7 @@ import com.diploma.qoldan.dto.user.AuthenticationRequestDto;
 import com.diploma.qoldan.dto.user.AuthenticationResponseDto;
 import com.diploma.qoldan.dto.user.RegisterRequestDto;
 import com.diploma.qoldan.dto.user.UserDto;
-import com.diploma.qoldan.exception.UsernameExistsException;
+import com.diploma.qoldan.exception.user.UsernameExistsException;
 import com.diploma.qoldan.mapper.UserMapper;
 import com.diploma.qoldan.model.user.Role;
 import com.diploma.qoldan.enums.RoleEnum;
@@ -74,11 +74,8 @@ public class UserService {
                         requestDto.getPassword()
                 )
         );
-        System.out.println("authenticate: authenticate");
         User user = repo.findByEmail(requestDto.getEmail());
-        System.out.println("authenticate: user");
         String jwtToken = jwtService.generateToken(userDetailsService.loadUserByUsername(user.getEmail()));
-        System.out.println("authenticate: jwt token");
         return AuthenticationResponseDto.builder()
                 .token(jwtToken)
                 .build();
@@ -112,5 +109,12 @@ public class UserService {
                 .stream()
                 .map(mapper::mapUserToDto)
                 .collect(Collectors.toList());
+    }
+
+    public User findUserByUsername(String username) throws UsernameNotFoundException {
+        User user = repo.findByEmail(username);
+        if (user == null)
+            throw new UsernameNotFoundException("");
+        return user;
     }
 }

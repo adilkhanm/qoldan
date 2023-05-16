@@ -4,12 +4,13 @@ import com.diploma.qoldan.dto.product.ProductRequestDto;
 import com.diploma.qoldan.dto.product.ProductResponseDto;
 import com.diploma.qoldan.dto.product.ProductShortResponseDto;
 import com.diploma.qoldan.enums.ProductStatusEnum;
-import com.diploma.qoldan.exception.UsernameExistsException;
 import com.diploma.qoldan.exception.category.CategoryNotFoundException;
 import com.diploma.qoldan.exception.product.ProductAccessDeniedException;
 import com.diploma.qoldan.exception.product.ProductIsNotActiveException;
 import com.diploma.qoldan.exception.product.ProductNotFoundException;
 import com.diploma.qoldan.exception.product.ProductTypeNotFoundException;
+import com.diploma.qoldan.exception.wishlist.WishlistNotFoundException;
+import com.diploma.qoldan.mapper.product.ProductMapper;
 import com.diploma.qoldan.model.category.Category;
 import com.diploma.qoldan.model.image.Image;
 import com.diploma.qoldan.model.item.Item;
@@ -17,14 +18,15 @@ import com.diploma.qoldan.model.item.ItemImage;
 import com.diploma.qoldan.model.product.Product;
 import com.diploma.qoldan.model.product.ProductType;
 import com.diploma.qoldan.model.user.User;
-import com.diploma.qoldan.repository.category.CategoryRepo;
 import com.diploma.qoldan.repository.ProductRepo;
-import com.diploma.qoldan.repository.UserRepo;
 import com.diploma.qoldan.repository.image.ImageRepo;
 import com.diploma.qoldan.repository.item.ItemImageRepo;
-import com.diploma.qoldan.repository.product.ProductTypeRepo;
+import com.diploma.qoldan.service.UserService;
+import com.diploma.qoldan.service.category.CategorySimpleService;
+import com.diploma.qoldan.service.wishlist.WishlistSimpleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,13 +40,19 @@ import java.util.stream.Stream;
 public class ProductService {
 
     private final ProductRepo repo;
-    private final ProductTypeRepo productTypeRepo;
     private final ImageRepo imageRepo;
-    private final CategoryRepo categoryRepo;
-    private final UserRepo userRepo;
     private final ItemImageRepo itemImageRepo;
 
+    private final ProductMapper mapper;
+
+    private final ProductSimpleService service;
+    private final CategorySimpleService categoryService;
+    private final WishlistSimpleService wishlistService;
+    private final ProductTypeService productTypeService;
+    private final UserService userService;
+
     public List<ProductShortResponseDto> getProducts(String username,
+                                                     String ownerUsername,
                                                      String type,
                                                      String category,
                                                      Integer price_low,
@@ -54,8 +62,8 @@ public class ProductService {
         List<Product> products = repo.findAllByStatus(ProductStatusEnum.ACTIVE.toString());
         Stream<Product> productsStream = products.stream().filter(product -> {
             boolean okay = true;
-            if (username != null)
-                okay &= product.getItem().getUser().getEmail().equals(username);
+            if (ownerUsername != null)
+                okay &= product.getItem().getUser().getEmail().equals(ownerUsername);
             if (type != null)
                 okay &= product.getProductType().getTitle().equals(type);
             if (category != null)
@@ -72,19 +80,19 @@ public class ProductService {
         if (limit != null)
             productsStream = productsStream.limit(limit);
 
+        final User user = username == null ? null : userService.findUserByUsername(username);
+
         return productsStream
-                .map(product -> ProductShortResponseDto.builder()
-                        .id(product.getId())
-                        .title(product.getItem().getTitle())
-                        .price(product.getPrice())
-                        .img(product.getItem().getMainImage().getUrl())
-                        .date(product.getDatePosted())
-                        .build())
+                .map(product -> {
+                    boolean inWishlist = wishlistService.checkProductInWishlist(user, product);
+                    boolean inCart = checkProductInCart(user, product);
+                    return mapper.mapProductToShortResponse(product, inWishlist, inCart);
+                })
                 .toList();
     }
 
-    public ProductResponseDto getProductById(Long productId) throws ProductNotFoundException {
-        Product product = findProductById(productId);
+    public ProductResponseDto getProductById(String username, Long productId) throws ProductNotFoundException {
+        Product product = service.findProductById(productId);
 
         Item item = product.getItem();
         List<String> tags = product
@@ -98,30 +106,21 @@ public class ProductService {
                 .map(itemImage -> itemImage.getImage().getUrl())
                 .toList();
 
-        return ProductResponseDto.builder()
-                .id(product.getId())
-                .title(item.getTitle())
-                .summary(item.getSummary())
-                .img(item.getMainImage().getUrl())
-                .category(item.getCategory().getTitle())
-                .username(item.getUser().getEmail())
-                .status(product.getStatus())
-                .price(product.getPrice())
-                .date(product.getDatePosted())
-                .type(product.getProductType().getTitle())
-                .tags(tags)
-                .images(images)
-                .build();
+        final User user = username == null ? null : userService.findUserByUsername(username);
+        boolean inWishlist = wishlistService.checkProductInWishlist(user, product);
+        boolean inCart = checkProductInCart(user, product);
+
+        return mapper.mapProductToResponse(product, item, tags, images, inWishlist, inCart);
     }
 
     @Transactional
     public Long createProduct(ProductRequestDto productRequestDto, String username)
-            throws ProductTypeNotFoundException, CategoryNotFoundException, UsernameExistsException {
+            throws ProductTypeNotFoundException, CategoryNotFoundException, UsernameNotFoundException {
 
         Image image = getImage(productRequestDto.getImg());
-        Category category = findCategoryByTitle(productRequestDto.getCategory());
-        User user = findUserByUsername(username);
-        ProductType productType = findTypeByTitle(productRequestDto.getType());
+        Category category = categoryService.findCategoryByTitle(productRequestDto.getCategory());
+        User user = userService.findUserByUsername(username);
+        ProductType productType = productTypeService.findTypeByTitle(productRequestDto.getType());
 
         Item item = Item.builder()
                 .title(productRequestDto.getTitle())
@@ -146,9 +145,10 @@ public class ProductService {
         return product.getId();
     }
 
+    @Transactional
     public void updateProduct(ProductRequestDto productRequestDto, String username, Collection<? extends GrantedAuthority> authorities)
             throws ProductNotFoundException, ProductIsNotActiveException, ProductTypeNotFoundException, CategoryNotFoundException, ProductAccessDeniedException {
-        Product product = findProductById(productRequestDto.getId());
+        Product product = service.findProductById(productRequestDto.getId());
         if (!product.getStatus().equals(ProductStatusEnum.ACTIVE.toString()))
             throw new ProductIsNotActiveException("");
 
@@ -156,13 +156,12 @@ public class ProductService {
                 && authorities.stream().anyMatch(a -> !a.getAuthority().equals("ROLE_ADMIN")))
             throw new ProductAccessDeniedException("");
 
-
-        ProductType productType = findTypeByTitle(productRequestDto.getType());
+        ProductType productType = productTypeService.findTypeByTitle(productRequestDto.getType());
         product.setPrice(productRequestDto.getPrice());
         product.setProductType(productType);
 
         Item item = product.getItem();
-        Category category = findCategoryByTitle(productRequestDto.getCategory());
+        Category category = categoryService.findCategoryByTitle(productRequestDto.getCategory());
         item.setTitle(productRequestDto.getTitle());
         item.setSummary(productRequestDto.getSummary());
         item.setCategory(category);
@@ -174,6 +173,19 @@ public class ProductService {
 
         repo.save(product);
         addImagesToItem(productRequestDto.getImages(), item);
+    }
+
+    @Transactional
+    public void deleteProductById(Long productId) throws ProductNotFoundException, ProductIsNotActiveException {
+        Product product = service.findProductById(productId);
+        if (!product.getStatus().equals(ProductStatusEnum.ACTIVE.toString()))
+            throw new ProductIsNotActiveException("");
+        repo.delete(product);
+    }
+
+    // TODO: Write logic for function to check if product is in the cart of the user
+    private boolean checkProductInCart(User user, Product product) {
+        return false;
     }
 
     private void addImagesToItem(List<String> images, Item item) {
@@ -190,14 +202,6 @@ public class ProductService {
         }
     }
 
-    @Transactional
-    public void deleteProductById(Long productId) throws ProductNotFoundException, ProductIsNotActiveException {
-        Product product = findProductById(productId);
-        if (!product.getStatus().equals(ProductStatusEnum.ACTIVE.toString()))
-            throw new ProductIsNotActiveException("");
-        repo.delete(product);
-    }
-
     private Image getImage(String url) {
         Image image = imageRepo.findByUrl(url);
         if (image != null)
@@ -207,31 +211,4 @@ public class ProductService {
                 .build();
     }
 
-    private Product findProductById(Long id) throws ProductNotFoundException {
-        Product product = repo.findById(id);
-        if (product == null)
-            throw new ProductNotFoundException("");
-        return product;
-    }
-
-    private Category findCategoryByTitle(String title) throws CategoryNotFoundException {
-        Category category = categoryRepo.findByTitle(title);
-        if (category == null)
-            throw new CategoryNotFoundException("");
-        return category;
-    }
-
-    private User findUserByUsername(String username) throws UsernameExistsException {
-        User user = userRepo.findByEmail(username);
-        if (user == null)
-            throw new UsernameExistsException("");
-        return user;
-    }
-
-    private ProductType findTypeByTitle(String title) throws ProductTypeNotFoundException {
-        ProductType productType = productTypeRepo.findByTitle(title);
-        if (productType == null)
-            throw new ProductTypeNotFoundException("");
-        return productType;
-    }
 }

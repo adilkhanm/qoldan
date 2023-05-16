@@ -19,7 +19,6 @@ public class ProductTypeService {
     private final ProductTypeRepo repo;
     private final ProductTypeMapper mapper;
 
-
     public List<ProductTypeDto> getProductTypes() {
         List<ProductType> productTypeList = repo.findAll();
         return productTypeList
@@ -59,5 +58,12 @@ public class ProductTypeService {
         }
 
         repo.delete(productType);
+    }
+
+    ProductType findTypeByTitle(String title) throws ProductTypeNotFoundException {
+        ProductType productType = repo.findByTitle(title);
+        if (productType == null)
+            throw new ProductTypeNotFoundException("");
+        return productType;
     }
 }

@@ -19,13 +19,13 @@ public class CategoryController {
     private final CategoryService service;
 
     @GetMapping
-    public ResponseEntity<?> getCategories() {
+    public ResponseEntity<List<CategoryDto>> getCategories() {
         List<CategoryDto> categoryDtoList = service.getCategories();
         return ResponseEntity.ok(categoryDtoList);
     }
 
     @PostMapping
-    public ResponseEntity<?> createCategory(@RequestBody CategoryDto categoryDto) throws CategoryExistsException {
+    public ResponseEntity<Long> createCategory(@RequestBody CategoryDto categoryDto) throws CategoryExistsException {
         Long id = service.createCategory(categoryDto);
         return ResponseEntity.ok(id);
     }

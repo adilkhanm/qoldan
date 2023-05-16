@@ -29,4 +29,7 @@ public class ProductResponseDto {
     private String type;
     private List<String> tags;
     private List<String> images;
+
+    private Boolean inWishlist;
+    private Boolean inCart;
 }

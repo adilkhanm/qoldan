@@ -1,43 +1,45 @@
 package com.diploma.qoldan.controller.wishlist;
 
-import com.diploma.qoldan.service.WishlistService;
+import com.diploma.qoldan.dto.product.ProductShortResponseDto;
+import com.diploma.qoldan.exception.product.ProductNotFoundException;
+import com.diploma.qoldan.exception.wishlist.WishlistExistsException;
+import com.diploma.qoldan.exception.wishlist.WishlistNotFoundException;
+import com.diploma.qoldan.service.wishlist.WishlistService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/wishlist")
+@RequestMapping("/my-wishlist")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:5001/")
 public class WishlistController {
 
     private final WishlistService service;
 
-//    @GetMapping
-//    public ResponseEntity<List<ProductDto>> getUserWishlist(Authentication auth) {
-//        List<ProductDto> productDtoList = service.getUserWishlist(auth.getName());
-//        return ResponseEntity.ok(productDtoList);
-//    }
+    @GetMapping
+    public ResponseEntity<?> getUserWishlist(@RequestParam(value = "limit", required = false) Integer limit,
+                                             @RequestParam(value = "offset", required = false) Integer offset,
+                                             Authentication auth) {
+        List<ProductShortResponseDto> productDtoList = service.getUsersWishlist(auth.getName(), limit, offset);
+        return ResponseEntity.ok(productDtoList);
+    }
 
     @PostMapping
-    public ResponseEntity<String> addToWishlist(
-            @RequestParam(value = "productId", required = true) Long productId,
-            Authentication auth) {
-        try {
-            service.addProductToWishlist(auth.getName(), productId);
-            return ResponseEntity.ok("Product was added to user's wishlist");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("There is some error while adding item to the wishlist\n" + e.getMessage());
-        }
-
+    public ResponseEntity<String> addToWishlist(@RequestParam(value = "productId") Long productId,
+                                                Authentication auth)
+            throws WishlistExistsException, ProductNotFoundException {
+        service.addProductToWishlist(auth.getName(), productId);
+        return ResponseEntity.ok("Product was added to user's wishlist");
     }
 
     @DeleteMapping
-    public ResponseEntity<String> deleteFromWishlist(
-            @RequestParam(value = "productId", required = true) Long productId,
-            Authentication auth) {
+    public ResponseEntity<String> deleteFromWishlist(@RequestParam(value = "productId") Long productId,
+                                                     Authentication auth)
+            throws WishlistNotFoundException, ProductNotFoundException {
         service.deleteProductFromWishlist(auth.getName(), productId);
         return ResponseEntity.ok("Product was deleted from user's wishlist");
     }

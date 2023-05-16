@@ -17,19 +17,19 @@ public class UserController {
     private final UserService service;
 
     @GetMapping
-    public ResponseEntity<?> getUserProfile(Authentication auth) {
+    public ResponseEntity<UserDto> getUserProfile(Authentication auth) {
         UserDto userDto = service.getAuthenticatedUser(auth.getName());
         return ResponseEntity.ok(userDto);
     }
 
     @PutMapping
-    public ResponseEntity<?> editUserProfile(@RequestBody UserDto userDto, Authentication auth) {
+    public ResponseEntity<String> editUserProfile(@RequestBody UserDto userDto, Authentication auth) {
         service.editUserProfile(userDto, auth.getName());
         return ResponseEntity.ok("User profile was successfully updated");
     }
 
     @GetMapping("/users")
-    public ResponseEntity<?> getUsers() {
+    public ResponseEntity<List<UserDto>> getUsers() {
         List<UserDto> userDtoList = service.getUsers();
         return ResponseEntity.ok(userDtoList);
     }

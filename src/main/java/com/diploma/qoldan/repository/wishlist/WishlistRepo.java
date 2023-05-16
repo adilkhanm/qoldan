@@ -1,4 +1,4 @@
-package com.diploma.qoldan.repository;
+package com.diploma.qoldan.repository.wishlist;
 
 
 import com.diploma.qoldan.model.product.Product;

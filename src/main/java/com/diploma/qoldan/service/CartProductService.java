@@ -1,19 +1,11 @@
 package com.diploma.qoldan.service;
 
-import com.diploma.qoldan.mapper.ProductMapper;
-import com.diploma.qoldan.model.cart.CartProduct;
-import com.diploma.qoldan.model.product.Product;
-import com.diploma.qoldan.model.user.User;
+import com.diploma.qoldan.mapper.product.ProductMapper;
 import com.diploma.qoldan.repository.CartProductRepo;
 import com.diploma.qoldan.repository.ProductRepo;
 import com.diploma.qoldan.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.sql.Timestamp;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
