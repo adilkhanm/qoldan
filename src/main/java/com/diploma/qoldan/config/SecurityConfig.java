@@ -26,11 +26,14 @@ public class SecurityConfig {
                 .disable()
                 .authorizeHttpRequests()
 
-                .requestMatchers("/auth/**")
+                .requestMatchers("/auth/**", "/swagger-ui/**", "/v3/**")
                     .permitAll()
 
-                .requestMatchers(HttpMethod.GET, "/product", "/category")
+                .requestMatchers(HttpMethod.GET, "/product/**", "/category", "/tag", "product-type")
                     .permitAll()
+
+                .requestMatchers("/category/**", "/tag/**", "/product-type/**")
+                    .hasAuthority("ROLE_ADMIN")
 
                 .anyRequest()
                     .authenticated()

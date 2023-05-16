@@ -1,9 +1,9 @@
 package com.diploma.qoldan.repository;
 
 
-import com.diploma.qoldan.model.Product;
-import com.diploma.qoldan.model.User;
-import com.diploma.qoldan.model.Wishlist;
+import com.diploma.qoldan.model.product.Product;
+import com.diploma.qoldan.model.user.User;
+import com.diploma.qoldan.model.wishlist.Wishlist;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
