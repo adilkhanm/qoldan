@@ -1,5 +1,6 @@
 package com.diploma.qoldan.model.user;
 
+import com.diploma.qoldan.model.address.Address;
 import com.diploma.qoldan.model.item.Item;
 import com.diploma.qoldan.model.product.Product;
 import jakarta.persistence.*;
@@ -48,5 +49,9 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<Item> items;
+
+    @ManyToOne
+    @JoinColumn(name = "address_id")
+    private Address address;
 
 }

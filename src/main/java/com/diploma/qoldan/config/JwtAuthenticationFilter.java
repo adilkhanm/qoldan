@@ -1,6 +1,6 @@
 package com.diploma.qoldan.config;
 
-import com.diploma.qoldan.service.JwtService;
+import com.diploma.qoldan.service.user.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

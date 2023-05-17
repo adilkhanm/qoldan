@@ -19,4 +19,6 @@ public class ProductShortResponseDto {
     private Date date;
     private Boolean inWishlist;
     private Boolean inCart;
+    private Boolean buyConfirmed;
+    private Boolean sellConfirmed;
 }

@@ -1,44 +1,63 @@
 package com.diploma.qoldan.controller.cart;
 
-import com.diploma.qoldan.service.CartProductService;
+import com.diploma.qoldan.dto.cart.CartResponseDto;
+import com.diploma.qoldan.exception.cart.CartIsEmptyException;
+import com.diploma.qoldan.exception.cart.CartNotFoundException;
+import com.diploma.qoldan.exception.cart.CartProductExistsException;
+import com.diploma.qoldan.exception.cart.CartProductNotFoundException;
+import com.diploma.qoldan.exception.product.ProductIsNotAvailableException;
+import com.diploma.qoldan.exception.product.ProductNotFoundException;
+import com.diploma.qoldan.service.cart.CartService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/cart")
+@RequestMapping("/my-cart")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:5001/")
 public class CartController {
 
-    private final CartProductService service;
+    private final CartService service;
 
-//    @GetMapping
-//    public ResponseEntity<List<ProductDto>> getUsersCartProducts(Authentication auth) {
-//        List<ProductDto> productDtoList = service.getUsersCartProducts(auth.getName());
-//        return ResponseEntity.ok(productDtoList);
-//    }
+    @GetMapping
+    public ResponseEntity<CartResponseDto> getUsersCart(@RequestParam(value = "limit", required = false) Integer limit,
+                                                        @RequestParam(value = "offset", required = false) Integer offset,
+                                                        Authentication auth)
+            throws CartNotFoundException {
+        CartResponseDto cartResponseDto = service.getUsersCart(auth.getName(), limit, offset);
+        return ResponseEntity.ok(cartResponseDto);
+    }
 
-//    @PostMapping
-//    public ResponseEntity<String> addProductToCart(
-//            @RequestParam(value = "productId", required = true) Long productId,
-//            Authentication auth) {
-//        try {
-//            service.bookProduct(auth.getName(), productId);
-//            return ResponseEntity.ok("The product was added to the cart");
-//        } catch (ProductNotAvailableException e) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("There is some error while adding product to the cart\n" + e.getMessage());
-//        }
-//    }
+    @PostMapping
+    public ResponseEntity<String> addProductToCart(@RequestParam(value = "productId") Long productId,
+                                                   Authentication auth)
+            throws CartProductExistsException, ProductNotFoundException, CartNotFoundException {
+        service.addProductToCart(auth.getName(), productId);
+        return ResponseEntity.ok("Product was added to the user's cart");
+    }
 
-//    @DeleteMapping
-//    public ResponseEntity<String> deleteProductFromCart(
-//            @RequestParam(value = "productId", required = true) Long productId,
-//            Authentication auth) {
-//        service.unbookProduct(auth.getName(), productId);
-//        return ResponseEntity.ok("The product was deleted from the cart");
-//    }
+    @DeleteMapping
+    public ResponseEntity<String> deleteProductFromCart(@RequestParam(value = "productId") Long productId,
+                                                        Authentication auth)
+            throws CartProductNotFoundException, ProductNotFoundException, CartNotFoundException {
+        service.deleteProductFromCart(auth.getName(), productId);
+        return ResponseEntity.ok("The product was deleted from the cart");
+    }
+
+    @PostMapping("/book")
+    public ResponseEntity<String> bookProducts(Authentication auth)
+            throws CartIsEmptyException, CartNotFoundException, ProductIsNotAvailableException {
+        service.bookProducts(auth.getName());
+        return ResponseEntity.ok("Products were successfully booked");
+    }
+
+    @PostMapping("/unbook")
+    public ResponseEntity<String> unbookProducts(Authentication auth)
+            throws ProductIsNotAvailableException, CartNotFoundException {
+        service.unbookProducts(auth.getName());
+        return ResponseEntity.ok("Products were successfully unbooked");
+    }
 
 }

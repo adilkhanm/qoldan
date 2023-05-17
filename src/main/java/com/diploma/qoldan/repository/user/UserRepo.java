@@ -1,4 +1,4 @@
-package com.diploma.qoldan.repository;
+package com.diploma.qoldan.repository.user;
 
 import com.diploma.qoldan.model.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;

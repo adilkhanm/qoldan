@@ -21,7 +21,8 @@ public class OrderRow {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String comment;
+    private Boolean sellConfirmed;
+    private Boolean buyConfirmed;
 
     @ManyToOne
     @JoinColumn(name = "order_id")

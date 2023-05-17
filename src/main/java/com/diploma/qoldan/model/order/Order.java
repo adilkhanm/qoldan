@@ -1,5 +1,6 @@
 package com.diploma.qoldan.model.order;
 
+import com.diploma.qoldan.model.address.Address;
 import com.diploma.qoldan.model.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -36,7 +37,7 @@ public class Order {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "address_id")
     private Address address;
 

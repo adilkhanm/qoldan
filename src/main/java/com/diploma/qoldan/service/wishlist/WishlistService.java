@@ -9,8 +9,10 @@ import com.diploma.qoldan.model.product.Product;
 import com.diploma.qoldan.model.user.User;
 import com.diploma.qoldan.model.wishlist.Wishlist;
 import com.diploma.qoldan.repository.wishlist.WishlistRepo;
-import com.diploma.qoldan.service.UserService;
+import com.diploma.qoldan.service.cart.CartSimpleService;
+import com.diploma.qoldan.service.user.UserService;
 import com.diploma.qoldan.service.product.ProductSimpleService;
+import com.diploma.qoldan.service.user.UserSimpleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,9 +30,9 @@ public class WishlistService {
 
     private final WishlistSimpleService service;
     private final ProductSimpleService productService;
-    private final UserService userService;
+    private final UserSimpleService userService;
+    private final CartSimpleService cartService;
 
-    @Transactional
     public List<ProductShortResponseDto> getUsersWishlist(String username, Integer limit, Integer offset) {
         User user = userService.findUserByUsername(username);
 
@@ -43,7 +45,10 @@ public class WishlistService {
 
         return wishlistStream
                 .map(Wishlist::getProduct)
-                .map(product -> productMapper.mapProductToShortResponse(product, true, false)) // TODO: to calculate inCart
+                .map(product -> productMapper.mapProductToShortResponse(
+                        product,
+                        true,
+                        cartService.checkProductInCart(user, product)))
                 .toList();
     }
 
@@ -57,9 +62,10 @@ public class WishlistService {
         if (wishlist != null)
             throw new WishlistExistsException("");
 
-        wishlist = new Wishlist();
-        wishlist.setProduct(product);
-        wishlist.setUser(user);
+        wishlist = Wishlist.builder()
+                .user(user)
+                .product(product)
+                .build();
         repo.save(wishlist);
     }
 

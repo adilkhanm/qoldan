@@ -1,4 +1,4 @@
-package com.diploma.qoldan.service;
+package com.diploma.qoldan.service.user;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

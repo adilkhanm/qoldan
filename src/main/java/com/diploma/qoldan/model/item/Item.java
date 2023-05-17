@@ -2,6 +2,7 @@ package com.diploma.qoldan.model.item;
 
 import com.diploma.qoldan.model.category.Category;
 import com.diploma.qoldan.model.image.Image;
+import com.diploma.qoldan.model.product.Product;
 import com.diploma.qoldan.model.user.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -41,5 +42,8 @@ public class Item {
 
     @OneToMany(mappedBy = "item")
     private List<ItemImage> itemImageList;
+
+    @OneToOne(mappedBy = "item")
+    private Product product;
 
 }

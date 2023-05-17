@@ -1,11 +1,11 @@
-package com.diploma.qoldan.service;
+package com.diploma.qoldan.service.user;
 
 import com.diploma.qoldan.model.user.Privilege;
 import com.diploma.qoldan.model.user.Role;
 import com.diploma.qoldan.enums.RoleEnum;
 import com.diploma.qoldan.model.user.User;
-import com.diploma.qoldan.repository.RoleRepo;
-import com.diploma.qoldan.repository.UserRepo;
+import com.diploma.qoldan.repository.user.RoleRepo;
+import com.diploma.qoldan.repository.user.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

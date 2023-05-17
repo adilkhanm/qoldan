@@ -26,14 +26,15 @@ public class ProductController {
     private final ProductService service;
 
     @GetMapping
-    public ResponseEntity<List<ProductShortResponseDto>> getProducts(@RequestParam(value = "username", required = false) String ownerUsername,
-                                         @RequestParam(value = "type", required = false) String type,
-                                         @RequestParam(value = "category", required = false) String category,
-                                         @RequestParam(value = "price_low", required = false) Integer price_low,
-                                         @RequestParam(value = "price_high", required = false) Integer price_high,
-                                         @RequestParam(value = "limit", required = false) Integer limit,
-                                         @RequestParam(value = "offset", required = false) Integer offset,
-                                         Authentication auth) {
+    public ResponseEntity<List<ProductShortResponseDto>> getProducts(
+                                        @RequestParam(value = "username", required = false) String ownerUsername,
+                                        @RequestParam(value = "type", required = false) String type,
+                                        @RequestParam(value = "category", required = false) String category,
+                                        @RequestParam(value = "price_low", required = false) Integer price_low,
+                                        @RequestParam(value = "price_high", required = false) Integer price_high,
+                                        @RequestParam(value = "limit", required = false) Integer limit,
+                                        @RequestParam(value = "offset", required = false) Integer offset,
+                                        Authentication auth) {
         String username = auth != null ? auth.getName() : null;
         List<ProductShortResponseDto> productResponseDtoList = service.getProducts(username, ownerUsername, type, category, price_low, price_high, limit, offset);
         return ResponseEntity.ok(productResponseDtoList);
@@ -41,16 +42,24 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponseDto> getProduct(@PathVariable("id") Long productId,
-                                        Authentication auth)
+                                                         Authentication auth)
             throws ProductNotFoundException {
         String username = auth != null ? auth.getName() : null;
         ProductResponseDto productResponseDto = service.getProductById(username, productId);
         return ResponseEntity.ok(productResponseDto);
     }
 
+    @GetMapping("/my")
+    public ResponseEntity<List<ProductShortResponseDto>> getUsersProducts(@RequestParam(value = "limit", required = false) Integer limit,
+                                                                     @RequestParam(value = "offset", required = false) Integer offset,
+                                                                     Authentication auth) {
+        List<ProductShortResponseDto> responseDtoList = service.getUsersProducts(auth.getName(), limit, offset);
+        return ResponseEntity.ok(responseDtoList);
+    }
+
     @PostMapping
     public ResponseEntity<Long> createProduct(@RequestBody ProductRequestDto productRequestDto,
-                                           Authentication auth)
+                                              Authentication auth)
             throws ProductTypeNotFoundException, CategoryNotFoundException, UsernameNotFoundException {
         Long id = service.createProduct(productRequestDto, auth.getName());
         return ResponseEntity.ok(id);
@@ -58,7 +67,7 @@ public class ProductController {
 
     @PutMapping("/{id}")
     public ResponseEntity<String> updateProduct(@PathVariable("id") Long productId,
-                                           @RequestBody ProductRequestDto productRequestDto,
+                                                @RequestBody ProductRequestDto productRequestDto,
                                            Authentication auth)
             throws ProductNotFoundException, ProductIsNotActiveException, ProductTypeNotFoundException, CategoryNotFoundException, ProductAccessDeniedException {
         productRequestDto.setId(productId);

@@ -32,4 +32,5 @@ public class ProductResponseDto {
 
     private Boolean inWishlist;
     private Boolean inCart;
+    private String orderStatus;
 }

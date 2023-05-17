@@ -1,7 +1,9 @@
 package com.diploma.qoldan.controller.user;
 
+import com.diploma.qoldan.dto.order.AddressDto;
 import com.diploma.qoldan.dto.user.UserDto;
-import com.diploma.qoldan.service.UserService;
+import com.diploma.qoldan.exception.user.UserAddressNotFoundException;
+import com.diploma.qoldan.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -10,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/profile")
+@RequestMapping("/my-profile")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -32,5 +34,19 @@ public class UserController {
     public ResponseEntity<List<UserDto>> getUsers() {
         List<UserDto> userDtoList = service.getUsers();
         return ResponseEntity.ok(userDtoList);
+    }
+
+    @GetMapping("/address")
+    public ResponseEntity<AddressDto> getUserAddress(Authentication auth)
+            throws UserAddressNotFoundException {
+        AddressDto addressDto = service.getUserAddress(auth.getName());
+        return ResponseEntity.ok(addressDto);
+    }
+
+    @PutMapping("/address")
+    public ResponseEntity<String> updateUserAddress(@RequestBody AddressDto addressDto, Authentication auth)
+            throws UserAddressNotFoundException {
+        service.updateUserAddress(auth.getName(), addressDto);
+        return ResponseEntity.ok("Address was successfully updated");
     }
 }

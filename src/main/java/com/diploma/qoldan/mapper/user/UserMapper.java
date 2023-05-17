@@ -1,4 +1,4 @@
-package com.diploma.qoldan.mapper;
+package com.diploma.qoldan.mapper.user;
 
 import com.diploma.qoldan.dto.user.UserDto;
 import com.diploma.qoldan.model.user.User;

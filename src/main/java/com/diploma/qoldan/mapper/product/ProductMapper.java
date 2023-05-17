@@ -49,4 +49,18 @@ public class ProductMapper {
                 .build();
     }
 
+    public ProductShortResponseDto mapProductAndOrderToShortResponse(Product product, Boolean buyConfirmed, Boolean sellConfirmed) {
+        return ProductShortResponseDto.builder()
+                .id(product.getId())
+                .title(product.getItem().getTitle())
+                .price(product.getPrice())
+                .img(product.getItem().getMainImage().getUrl())
+                .date(product.getDatePosted())
+                .inWishlist(false)
+                .inCart(false)
+                .buyConfirmed(buyConfirmed)
+                .sellConfirmed(sellConfirmed)
+                .build();
+    }
+
 }

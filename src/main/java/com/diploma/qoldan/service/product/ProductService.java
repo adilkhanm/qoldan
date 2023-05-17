@@ -9,7 +9,6 @@ import com.diploma.qoldan.exception.product.ProductAccessDeniedException;
 import com.diploma.qoldan.exception.product.ProductIsNotActiveException;
 import com.diploma.qoldan.exception.product.ProductNotFoundException;
 import com.diploma.qoldan.exception.product.ProductTypeNotFoundException;
-import com.diploma.qoldan.exception.wishlist.WishlistNotFoundException;
 import com.diploma.qoldan.mapper.product.ProductMapper;
 import com.diploma.qoldan.model.category.Category;
 import com.diploma.qoldan.model.image.Image;
@@ -18,11 +17,13 @@ import com.diploma.qoldan.model.item.ItemImage;
 import com.diploma.qoldan.model.product.Product;
 import com.diploma.qoldan.model.product.ProductType;
 import com.diploma.qoldan.model.user.User;
-import com.diploma.qoldan.repository.ProductRepo;
+import com.diploma.qoldan.repository.product.ProductRepo;
 import com.diploma.qoldan.repository.image.ImageRepo;
 import com.diploma.qoldan.repository.item.ItemImageRepo;
-import com.diploma.qoldan.service.UserService;
+import com.diploma.qoldan.service.cart.CartSimpleService;
+import com.diploma.qoldan.service.user.UserService;
 import com.diploma.qoldan.service.category.CategorySimpleService;
+import com.diploma.qoldan.service.user.UserSimpleService;
 import com.diploma.qoldan.service.wishlist.WishlistSimpleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -49,7 +50,8 @@ public class ProductService {
     private final CategorySimpleService categoryService;
     private final WishlistSimpleService wishlistService;
     private final ProductTypeService productTypeService;
-    private final UserService userService;
+    private final UserSimpleService userService;
+    private final CartSimpleService cartService;
 
     public List<ProductShortResponseDto> getProducts(String username,
                                                      String ownerUsername,
@@ -85,7 +87,7 @@ public class ProductService {
         return productsStream
                 .map(product -> {
                     boolean inWishlist = wishlistService.checkProductInWishlist(user, product);
-                    boolean inCart = checkProductInCart(user, product);
+                    boolean inCart = cartService.checkProductInCart(user, product);
                     return mapper.mapProductToShortResponse(product, inWishlist, inCart);
                 })
                 .toList();
@@ -108,9 +110,27 @@ public class ProductService {
 
         final User user = username == null ? null : userService.findUserByUsername(username);
         boolean inWishlist = wishlistService.checkProductInWishlist(user, product);
-        boolean inCart = checkProductInCart(user, product);
+        boolean inCart = cartService.checkProductInCart(user, product);
 
         return mapper.mapProductToResponse(product, item, tags, images, inWishlist, inCart);
+    }
+
+    public List<ProductShortResponseDto> getUsersProducts(String username, Integer limit, Integer offset) {
+        User user = userService.findUserByUsername(username);
+        List<Product> products = repo.findAllByStatusAndUser(ProductStatusEnum.ACTIVE.toString(), user.getId());
+        Stream<Product> productsStream = products.stream();
+        if (offset != null)
+            productsStream = productsStream.skip(offset);
+        if (limit != null)
+            productsStream = productsStream.limit(limit);
+
+        return productsStream
+                .map(product -> {
+                    boolean inWishlist = wishlistService.checkProductInWishlist(user, product);
+                    boolean inCart = cartService.checkProductInCart(user, product);
+                    return mapper.mapProductToShortResponse(product, inWishlist, inCart);
+                })
+                .toList();
     }
 
     @Transactional
@@ -181,11 +201,6 @@ public class ProductService {
         if (!product.getStatus().equals(ProductStatusEnum.ACTIVE.toString()))
             throw new ProductIsNotActiveException("");
         repo.delete(product);
-    }
-
-    // TODO: Write logic for function to check if product is in the cart of the user
-    private boolean checkProductInCart(User user, Product product) {
-        return false;
     }
 
     private void addImagesToItem(List<String> images, Item item) {
