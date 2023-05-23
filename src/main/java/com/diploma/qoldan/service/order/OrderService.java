@@ -123,6 +123,10 @@ public class OrderService {
         repo.save(order);
         rowRepo.saveAll(orderRowList);
         cartService.emptyCartOfUser(user);
+
+        for (OrderRow row : orderRowList) {
+            cartService.emptyCartsByProduct(row.getProduct());
+        }
     }
 
     public void confirmOrder(String username, Long orderId)

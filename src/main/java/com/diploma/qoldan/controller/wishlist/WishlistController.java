@@ -21,7 +21,7 @@ public class WishlistController {
     private final WishlistService service;
 
     @GetMapping
-    public ResponseEntity<?> getUserWishlist(@RequestParam(value = "limit", required = false) Integer limit,
+    public ResponseEntity<List<ProductShortResponseDto>> getUserWishlist(@RequestParam(value = "limit", required = false) Integer limit,
                                              @RequestParam(value = "offset", required = false) Integer offset,
                                              Authentication auth) {
         List<ProductShortResponseDto> productDtoList = service.getUsersWishlist(auth.getName(), limit, offset);

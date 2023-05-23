@@ -67,8 +67,11 @@ public class CartService {
 
     @Transactional
     public void addProductToCart(String username, Long productId)
-            throws ProductNotFoundException, CartProductExistsException, CartNotFoundException {
+            throws ProductNotFoundException, CartProductExistsException, CartNotFoundException, ProductIsNotAvailableException {
         Product product = productService.findProductById(productId);
+        if (!product.getStatus().equals(ProductStatusEnum.ACTIVE.toString()))
+            throw new ProductIsNotAvailableException("");
+
         User user = userService.findUserByUsername(username);
         Cart cart = service.findCartByUser(user);
 
@@ -80,11 +83,8 @@ public class CartService {
                 .cart(cart)
                 .product(product)
                 .build();
-        cartProductRepo.save(cartProduct);
 
-        cart.setTotal(cart.getTotal() + product.getPrice());
-        cart.setTotalProducts(cart.getTotalProducts() + 1);
-        repo.save(cart);
+        service.addProductToCart(cartProduct);
     }
 
     @Transactional
@@ -94,11 +94,7 @@ public class CartService {
         Product product = productService.findProductById(productId);
         Cart cart = service.findCartByUser(user);
         CartProduct cartProduct = service.findCartProductByCartAndProduct(cart, product);
-        cartProductRepo.delete(cartProduct);
-
-        cart.setTotal(cart.getTotal() - product.getPrice());
-        cart.setTotalProducts(cart.getTotalProducts() - 1);
-        repo.save(cart);
+        service.deleteProductFromCart(cartProduct);
     }
 
     @Transactional

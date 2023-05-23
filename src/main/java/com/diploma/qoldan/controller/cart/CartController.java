@@ -33,7 +33,7 @@ public class CartController {
     @PostMapping
     public ResponseEntity<String> addProductToCart(@RequestParam(value = "productId") Long productId,
                                                    Authentication auth)
-            throws CartProductExistsException, ProductNotFoundException, CartNotFoundException {
+            throws CartProductExistsException, ProductNotFoundException, CartNotFoundException, ProductIsNotAvailableException {
         service.addProductToCart(auth.getName(), productId);
         return ResponseEntity.ok("Product was added to the user's cart");
     }

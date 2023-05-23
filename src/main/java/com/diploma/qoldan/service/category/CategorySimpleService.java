@@ -15,7 +15,7 @@ public class CategorySimpleService {
     public Category findCategoryByTitle(String title) throws CategoryNotFoundException {
         Category category = repo.findByTitle(title);
         if (category == null)
-            throw new CategoryNotFoundException("");
+            throw new CategoryNotFoundException("Title: " + title);
         return category;
     }
 

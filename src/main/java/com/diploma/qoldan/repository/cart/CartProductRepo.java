@@ -10,8 +10,8 @@ import java.util.List;
 
 @Repository
 public interface CartProductRepo extends JpaRepository<CartProduct, Integer> {
-    List<CartProduct> findAllByCart(Cart cart);
     CartProduct findByCartAndProduct(Cart cart, Product product);
+    List<CartProduct> findByProduct(Product product);
 
     void deleteAllByCart(Cart cart);
 }

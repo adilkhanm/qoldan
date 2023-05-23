@@ -115,7 +115,6 @@ public class UserService {
         user.setFirstname(userDto.getFirstname());
         user.setLastname(userDto.getLastname());
         user.setMobile(userDto.getMobile());
-        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         repo.save(user);
     }
 

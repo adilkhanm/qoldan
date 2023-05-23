@@ -10,6 +10,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -21,7 +27,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
+        http.cors().and()
                 .csrf()
                 .disable()
                 .authorizeHttpRequests()
@@ -29,11 +35,14 @@ public class SecurityConfig {
                 .requestMatchers("/auth/**", "/swagger-ui/**", "/v3/**")
                     .permitAll()
 
-                .requestMatchers(HttpMethod.GET, "/product/**", "/category", "/tag", "product-type")
+                .requestMatchers(HttpMethod.GET, "/product/**", "/category", "/tag", "/product-type")
                     .permitAll()
 
                 .requestMatchers("/category/**", "/tag/**", "/product-type/**")
                     .hasAuthority("ROLE_ADMIN")
+
+                .requestMatchers("/**")
+                    .hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
 
                 .anyRequest()
                     .authenticated()
@@ -46,5 +55,4 @@ public class SecurityConfig {
 
         return http.build();
     }
-
 }

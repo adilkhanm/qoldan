@@ -12,6 +12,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @AllArgsConstructor
 public class CartSimpleService {
@@ -62,5 +64,31 @@ public class CartSimpleService {
         cart.setTotalProducts(0);
         cart.setTotal(0);
         cartProductRepo.deleteAllByCart(cart);
+    }
+
+    @Transactional
+    public void emptyCartsByProduct(Product product) {
+        List<CartProduct> cartProducts = cartProductRepo.findByProduct(product);
+        for (CartProduct cartProduct : cartProducts) {
+            deleteProductFromCart(cartProduct);
+        }
+    }
+
+    @Transactional
+    public void addProductToCart(CartProduct cartProduct) {
+        cartProductRepo.save(cartProduct);
+        Cart cart = cartProduct.getCart();
+        cart.setTotal(cart.getTotal() + cartProduct.getProduct().getPrice());
+        cart.setTotalProducts(cart.getTotalProducts() + 1);
+        repo.save(cart);
+    }
+
+    @Transactional
+    public void deleteProductFromCart(CartProduct cartProduct) {
+        cartProductRepo.delete(cartProduct);
+        Cart cart = cartProduct.getCart();
+        cart.setTotal(cart.getTotal() - cartProduct.getProduct().getPrice());
+        cart.setTotalProducts(cart.getTotalProducts() - 1);
+        repo.save(cart);
     }
 }
