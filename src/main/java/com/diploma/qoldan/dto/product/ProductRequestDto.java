@@ -16,9 +16,9 @@ public class ProductRequestDto {
 
     private String title;
     private String summary;
-    private String img;
+    private String img; // todo: remove it
     private String category;
-    private List<String> images;
+    private List<String> images; // todo: remove it
 
     private Integer price;
     private String type;

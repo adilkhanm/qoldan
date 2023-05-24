@@ -21,6 +21,9 @@ public class Image {
 
     @Column(unique = true)
     @NotBlank
-    private String url;
+    private String name;
+
+    private String location;
+    private String url; // todo: remove it
 
 }

@@ -18,7 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/tag")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5001/")
+//@CrossOrigin(origins = "http://localhost:5001/")
 public class TagController {
 
     private final TagService service;

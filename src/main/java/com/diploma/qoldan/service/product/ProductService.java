@@ -57,8 +57,8 @@ public class ProductService {
                                                      String ownerUsername,
                                                      String type,
                                                      String category,
-                                                     Integer price_low,
-                                                     Integer price_high,
+                                                     Integer priceLow,
+                                                     Integer priceHigh,
                                                      Integer limit,
                                                      Integer offset) {
         List<Product> products = repo.findAllByStatus(ProductStatusEnum.ACTIVE.toString());
@@ -70,10 +70,10 @@ public class ProductService {
                 okay &= product.getProductType().getTitle().equals(type);
             if (category != null)
                 okay &= product.getItem().getCategory().getTitle().equals(category);
-            if (price_low != null)
-                okay &= product.getPrice() >= price_low;
-            if (price_high != null)
-                okay &= product.getPrice() <= price_high;
+            if (priceLow != null)
+                okay &= product.getPrice() >= priceLow;
+            if (priceHigh != null)
+                okay &= product.getPrice() <= priceHigh;
             return okay;
         });
 
@@ -91,6 +91,25 @@ public class ProductService {
                     return mapper.mapProductToShortResponse(product, inWishlist, inCart);
                 })
                 .toList();
+    }
+
+    public Integer getProductPages(Integer productsPerPage,
+                                   String ownerUsername,
+                                   String type,
+                                   String category,
+                                   Integer priceLow,
+                                   Integer priceHigh) {
+        List<ProductShortResponseDto> products = getProducts(
+                null,
+                ownerUsername,
+                type,
+                category,
+                priceLow,
+                priceHigh,
+                null,
+                null);
+        Integer productsCount = products.size();
+        return (productsCount + productsPerPage - 1) / productsPerPage;
     }
 
     public ProductResponseDto getProductById(String username, Long productId) throws ProductNotFoundException {
@@ -134,7 +153,7 @@ public class ProductService {
     }
 
     @Transactional
-    public Long createProduct(ProductRequestDto productRequestDto, String username)
+    public Long createProduct(ProductRequestDto productRequestDto, Long imageId, String username)
             throws ProductTypeNotFoundException, CategoryNotFoundException, UsernameNotFoundException {
 
         Image image = getImage(productRequestDto.getImg());

@@ -15,8 +15,9 @@ public class ProductShortResponseDto {
     private Long id;
     private String title;
     private Integer price;
-    private String img;
+    private String img; // todo: make long
     private Date date;
+    private String status;
     private Boolean inWishlist;
     private Boolean inCart;
     private Boolean buyConfirmed;

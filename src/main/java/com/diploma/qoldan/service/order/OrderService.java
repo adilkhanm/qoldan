@@ -129,6 +129,7 @@ public class OrderService {
         }
     }
 
+    @Transactional
     public void confirmOrder(String username, Long orderId)
             throws OrderAlreadyConfirmedException, UserHasNoAccessException {
         Order order = repo.findById(orderId);
@@ -145,6 +146,7 @@ public class OrderService {
         }
     }
 
+    @Transactional
     public void confirmOrderProduct(String username, Long productId)
             throws ProductNotFoundException, UserHasNoAccessException, OrderRowNotFoundException {
         Product product = productService.findProductById(productId);
@@ -153,15 +155,18 @@ public class OrderService {
             throw new UserHasNoAccessException("");
 
         orderRow.setBuyConfirmed(true);
+        rowRepo.save(orderRow);
     }
 
+    @Transactional
     public void confirmSellProduct(String username, Long productId)
             throws ProductNotFoundException, OrderRowNotFoundException, UserHasNoAccessException {
         Product product = productService.findProductById(productId);
         OrderRow orderRow = service.findRowByProduct(product);
-        if (!orderRow.getOrder().getUser().getEmail().equals(username))
+        if (!orderRow.getProduct().getItem().getUser().getEmail().equals(username))
             throw new UserHasNoAccessException("");
 
         orderRow.setSellConfirmed(true);
+        rowRepo.save(orderRow);
     }
 }

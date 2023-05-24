@@ -22,7 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/my-orders")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5001/")
+//@CrossOrigin(origins = "http://localhost:5001/")
 public class OrderController {
 
     private final OrderService service;

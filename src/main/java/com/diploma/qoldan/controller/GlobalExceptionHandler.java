@@ -7,6 +7,7 @@ import com.diploma.qoldan.exception.cart.CartProductNotFoundException;
 import com.diploma.qoldan.exception.category.CategoryExistsException;
 import com.diploma.qoldan.exception.category.CategoryNotFoundException;
 import com.diploma.qoldan.exception.image.ImageExistsException;
+import com.diploma.qoldan.exception.image.ImageNotFoundException;
 import com.diploma.qoldan.exception.order.OrderAlreadyConfirmedException;
 import com.diploma.qoldan.exception.order.OrderExistsException;
 import com.diploma.qoldan.exception.order.OrderRowNotFoundException;
@@ -27,7 +28,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @ControllerAdvice
-@CrossOrigin(origins = "http://localhost:5001")
+//@CrossOrigin(origins = "http://localhost:5001")
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {
@@ -38,7 +39,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             WishlistNotFoundException.class,
             CartProductNotFoundException.class,
             OrderStatusNotFoundException.class,
-            OrderRowNotFoundException.class })
+            OrderRowNotFoundException.class,
+            ImageNotFoundException.class })
     protected ResponseEntity<?> handleNotFoundException(Exception exception, WebRequest request) {
         return handleExceptionInternal(exception, exception.getMessage(), new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
