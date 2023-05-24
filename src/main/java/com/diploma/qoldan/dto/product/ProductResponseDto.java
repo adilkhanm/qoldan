@@ -17,7 +17,7 @@ public class ProductResponseDto {
 
     private String title;
     private String summary;
-    private String img; // todo: make long
+    private Long imageId;
 
     private String category;
     private String username;
@@ -28,7 +28,7 @@ public class ProductResponseDto {
 
     private String type;
     private List<String> tags;
-    private List<String> images; // todo: make long
+    private List<Long> images;
 
     private Boolean inWishlist;
     private Boolean inCart;

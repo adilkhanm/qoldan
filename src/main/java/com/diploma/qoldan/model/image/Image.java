@@ -24,6 +24,4 @@ public class Image {
     private String name;
 
     private String location;
-    private String url; // todo: remove it
-
 }

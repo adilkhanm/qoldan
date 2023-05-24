@@ -5,6 +5,7 @@ import com.diploma.qoldan.dto.product.ProductResponseDto;
 import com.diploma.qoldan.dto.product.ProductShortResponseDto;
 import com.diploma.qoldan.enums.ProductStatusEnum;
 import com.diploma.qoldan.exception.category.CategoryNotFoundException;
+import com.diploma.qoldan.exception.image.ImageNotFoundException;
 import com.diploma.qoldan.exception.product.ProductAccessDeniedException;
 import com.diploma.qoldan.exception.product.ProductIsNotActiveException;
 import com.diploma.qoldan.exception.product.ProductNotFoundException;
@@ -13,7 +14,6 @@ import com.diploma.qoldan.mapper.product.ProductMapper;
 import com.diploma.qoldan.model.category.Category;
 import com.diploma.qoldan.model.image.Image;
 import com.diploma.qoldan.model.item.Item;
-import com.diploma.qoldan.model.item.ItemImage;
 import com.diploma.qoldan.model.product.Product;
 import com.diploma.qoldan.model.product.ProductType;
 import com.diploma.qoldan.model.user.User;
@@ -21,7 +21,7 @@ import com.diploma.qoldan.repository.product.ProductRepo;
 import com.diploma.qoldan.repository.image.ImageRepo;
 import com.diploma.qoldan.repository.item.ItemImageRepo;
 import com.diploma.qoldan.service.cart.CartSimpleService;
-import com.diploma.qoldan.service.user.UserService;
+import com.diploma.qoldan.service.image.ImageService;
 import com.diploma.qoldan.service.category.CategorySimpleService;
 import com.diploma.qoldan.service.user.UserSimpleService;
 import com.diploma.qoldan.service.wishlist.WishlistSimpleService;
@@ -31,6 +31,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -41,8 +42,6 @@ import java.util.stream.Stream;
 public class ProductService {
 
     private final ProductRepo repo;
-    private final ImageRepo imageRepo;
-    private final ItemImageRepo itemImageRepo;
 
     private final ProductMapper mapper;
 
@@ -52,6 +51,7 @@ public class ProductService {
     private final ProductTypeService productTypeService;
     private final UserSimpleService userService;
     private final CartSimpleService cartService;
+    private final ImageService imageService;
 
     public List<ProductShortResponseDto> getProducts(String username,
                                                      String ownerUsername,
@@ -121,10 +121,10 @@ public class ProductService {
                 .stream()
                 .map(productTag -> productTag.getTag().getTitle())
                 .toList();
-        List<String> images = item
+        List<Long> images = item
                 .getItemImageList()
                 .stream()
-                .map(itemImage -> itemImage.getImage().getUrl())
+                .map(itemImage -> itemImage.getImage().getId())
                 .toList();
 
         final User user = username == null ? null : userService.findUserByUsername(username);
@@ -153,10 +153,10 @@ public class ProductService {
     }
 
     @Transactional
-    public Long createProduct(ProductRequestDto productRequestDto, Long imageId, String username)
-            throws ProductTypeNotFoundException, CategoryNotFoundException, UsernameNotFoundException {
+    public Long createProduct(ProductRequestDto productRequestDto, String username)
+            throws ProductTypeNotFoundException, CategoryNotFoundException, UsernameNotFoundException, IOException, ImageNotFoundException {
 
-        Image image = getImage(productRequestDto.getImg());
+        Image image = imageService.findById(productRequestDto.getImageId());
         Category category = categoryService.findCategoryByTitle(productRequestDto.getCategory());
         User user = userService.findUserByUsername(username);
         ProductType productType = productTypeService.findTypeByTitle(productRequestDto.getType());
@@ -179,14 +179,12 @@ public class ProductService {
 
         repo.save(product);
 
-        addImagesToItem(productRequestDto.getImages(), item);
-
         return product.getId();
     }
 
     @Transactional
     public void updateProduct(ProductRequestDto productRequestDto, String username, Collection<? extends GrantedAuthority> authorities)
-            throws ProductNotFoundException, ProductIsNotActiveException, ProductTypeNotFoundException, CategoryNotFoundException, ProductAccessDeniedException {
+            throws ProductNotFoundException, ProductIsNotActiveException, ProductTypeNotFoundException, CategoryNotFoundException, ProductAccessDeniedException, IOException, ImageNotFoundException {
         Product product = service.findProductById(productRequestDto.getId());
         if (!product.getStatus().equals(ProductStatusEnum.ACTIVE.toString()))
             throw new ProductIsNotActiveException("");
@@ -205,13 +203,12 @@ public class ProductService {
         item.setSummary(productRequestDto.getSummary());
         item.setCategory(category);
 
-        Image image = getImage(productRequestDto.getImg());
+        Image image = imageService.findById(productRequestDto.getImageId());
         item.setMainImage(image);
 
         product.setItem(item);
 
         repo.save(product);
-        addImagesToItem(productRequestDto.getImages(), item);
     }
 
     @Transactional
@@ -220,29 +217,6 @@ public class ProductService {
         if (!product.getStatus().equals(ProductStatusEnum.ACTIVE.toString()))
             throw new ProductIsNotActiveException("");
         repo.delete(product);
-    }
-
-    private void addImagesToItem(List<String> images, Item item) {
-        if (images == null)
-            return;
-
-        for (String imageUrl : images) {
-            Image image = getImage(imageUrl);
-            ItemImage itemImage = ItemImage.builder()
-                    .image(image)
-                    .item(item)
-                    .build();
-            itemImageRepo.save(itemImage);
-        }
-    }
-
-    private Image getImage(String url) {
-        Image image = imageRepo.findByUrl(url);
-        if (image != null)
-            return image;
-        return Image.builder()
-                .url(url)
-                .build();
     }
 
 }

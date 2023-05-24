@@ -31,10 +31,14 @@ public class ImageService {
     }
 
     public FileSystemResource find(Long imageId) throws ImageNotFoundException {
+        Image image = findById(imageId);
+        return fileSystemRepo.findInFileSystem(image.getLocation());
+    }
+
+    public Image findById(Long imageId) throws ImageNotFoundException {
         Image image = repo.findById(imageId);
         if (image == null)
             throw new ImageNotFoundException("");
-
-        return fileSystemRepo.findInFileSystem(image.getLocation());
+        return image;
     }
 }

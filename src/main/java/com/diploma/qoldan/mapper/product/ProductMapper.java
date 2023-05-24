@@ -18,8 +18,9 @@ public class ProductMapper {
                 .id(product.getId())
                 .title(product.getItem().getTitle())
                 .price(product.getPrice())
-                .img(product.getItem().getMainImage().getUrl())
+                .imageId(product.getItem().getMainImage().getId())
                 .date(product.getDatePosted())
+                .status(product.getStatus())
                 .inWishlist(inWishlist)
                 .inCart(inCart)
                 .build();
@@ -28,14 +29,14 @@ public class ProductMapper {
     public ProductResponseDto mapProductToResponse(Product product,
                                                    Item item,
                                                    List<String> tags,
-                                                   List<String> images,
+                                                   List<Long> images,
                                                    Boolean inWishlist,
                                                    Boolean inCart) {
         return ProductResponseDto.builder()
                 .id(product.getId())
                 .title(item.getTitle())
                 .summary(item.getSummary())
-                .img(item.getMainImage().getUrl())
+                .imageId(item.getMainImage().getId())
                 .category(item.getCategory().getTitle())
                 .username(item.getUser().getEmail())
                 .status(product.getStatus())
@@ -54,8 +55,9 @@ public class ProductMapper {
                 .id(product.getId())
                 .title(product.getItem().getTitle())
                 .price(product.getPrice())
-                .img(product.getItem().getMainImage().getUrl())
+                .imageId(product.getItem().getMainImage().getId())
                 .date(product.getDatePosted())
+                .status(product.getStatus())
                 .inWishlist(false)
                 .inCart(false)
                 .buyConfirmed(buyConfirmed)

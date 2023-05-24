@@ -4,6 +4,7 @@ import com.diploma.qoldan.dto.product.ProductRequestDto;
 import com.diploma.qoldan.dto.product.ProductResponseDto;
 import com.diploma.qoldan.dto.product.ProductShortResponseDto;
 import com.diploma.qoldan.exception.category.CategoryNotFoundException;
+import com.diploma.qoldan.exception.image.ImageNotFoundException;
 import com.diploma.qoldan.exception.product.ProductAccessDeniedException;
 import com.diploma.qoldan.exception.product.ProductIsNotActiveException;
 import com.diploma.qoldan.exception.product.ProductNotFoundException;
@@ -26,7 +27,6 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService service;
-    private final ImageService imageService;
 
     @GetMapping
     public ResponseEntity<List<ProductShortResponseDto>> getProducts(
@@ -75,11 +75,9 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<Long> createProduct(@RequestBody ProductRequestDto productRequestDto,
-                                              @RequestParam(value = "image") MultipartFile image,
                                               Authentication auth)
-            throws ProductTypeNotFoundException, CategoryNotFoundException, UsernameNotFoundException, IOException {
-        Long imageId = imageService.save(image);
-        Long id = service.createProduct(productRequestDto, imageId, auth.getName());
+            throws ProductTypeNotFoundException, CategoryNotFoundException, UsernameNotFoundException, IOException, ImageNotFoundException {
+        Long id = service.createProduct(productRequestDto, auth.getName());
         return ResponseEntity.ok(id);
     }
 
@@ -87,7 +85,7 @@ public class ProductController {
     public ResponseEntity<String> updateProduct(@PathVariable("id") Long productId,
                                                 @RequestBody ProductRequestDto productRequestDto,
                                            Authentication auth)
-            throws ProductNotFoundException, ProductIsNotActiveException, ProductTypeNotFoundException, CategoryNotFoundException, ProductAccessDeniedException {
+            throws ProductNotFoundException, ProductIsNotActiveException, ProductTypeNotFoundException, CategoryNotFoundException, ProductAccessDeniedException, IOException, ImageNotFoundException {
         productRequestDto.setId(productId);
         service.updateProduct(productRequestDto, auth.getName(), auth.getAuthorities());
         return ResponseEntity.ok("Product was successfully updated");
