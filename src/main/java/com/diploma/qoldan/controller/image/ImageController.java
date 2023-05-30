@@ -26,9 +26,9 @@ public class ImageController {
     }
 
     @GetMapping(value = "/{imageId}", produces = MediaType.IMAGE_JPEG_VALUE)
-    public ResponseEntity<FileSystemResource> downloadImage(@PathVariable Long imageId)
+    public FileSystemResource downloadImage(@PathVariable Long imageId)
             throws ImageNotFoundException {
         FileSystemResource resource = service.find(imageId);
-        return ResponseEntity.ok(resource);
+        return resource;
     }
 }
