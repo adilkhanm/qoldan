@@ -14,9 +14,7 @@
 	<name>qoldan</name>
 	<description>Diploma project </description>
 	<properties>
-		<java.version>15</java.version>
-		<maven.compiler.target>15</maven.compiler.target>
-		<maven.compiler.source>15</maven.compiler.source>
+		<java.version>17</java.version>
 		<org.mapstruct.version>1.5.3.Final</org.mapstruct.version>
 	</properties>
 	<dependencies>
@@ -119,11 +117,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-<!--				<version>3.10.1</version>-->
 				<configuration>
-<!--					<source>${java.version}</source>-->
-<!--					<target>${java.version}</target>-->
-<!--					<release>${java.version}</release>-->
 					<annotationProcessorPaths>
 						<path>
 							<groupId>org.projectlombok</groupId>
