@@ -6,7 +6,8 @@ insert into _user (id, email, firstname, lastname, mobile, password, address_id)
 
 insert into _role (id, name) values
 (1, 'ROLE_USER'),
-(2, 'ROLE_ADMIN');
+(2, 'ROLE_ADMIN'),
+(3, 'ROLE_ORGANIZATION');
 
 insert into users_roles (user_id, role_id) values
 (1, 2);

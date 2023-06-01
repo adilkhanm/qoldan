@@ -1,19 +1,14 @@
 package com.diploma.qoldan.service.user;
 
 import com.diploma.qoldan.dto.order.AddressDto;
-import com.diploma.qoldan.dto.user.AuthenticationRequestDto;
-import com.diploma.qoldan.dto.user.AuthenticationResponseDto;
-import com.diploma.qoldan.dto.user.RegisterRequestDto;
-import com.diploma.qoldan.dto.user.UserDto;
+import com.diploma.qoldan.dto.user.*;
 import com.diploma.qoldan.exception.user.UserAddressNotFoundException;
 import com.diploma.qoldan.exception.user.UsernameExistsException;
 import com.diploma.qoldan.mapper.address.AddressMapper;
 import com.diploma.qoldan.mapper.user.UserMapper;
 import com.diploma.qoldan.model.address.Address;
 import com.diploma.qoldan.model.user.Role;
-import com.diploma.qoldan.enums.RoleEnum;
 import com.diploma.qoldan.model.user.User;
-import com.diploma.qoldan.repository.user.RoleRepo;
 import com.diploma.qoldan.repository.user.UserRepo;
 import com.diploma.qoldan.service.address.AddressSimpleService;
 import com.diploma.qoldan.service.cart.CartSimpleService;
@@ -25,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.management.relation.RoleNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,7 +29,6 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepo repo;
-    private final RoleRepo roleRepo;
 
     private final UserMapper mapper;
     private final AddressMapper addressMapper;
@@ -48,20 +43,18 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
 
     @Transactional
-    public AuthenticationResponseDto register(RegisterRequestDto requestDto) throws UsernameExistsException {
+    public AuthenticationResponseDto register(RegisterRequestDto requestDto)
+            throws UsernameExistsException, RoleNotFoundException {
+        return registerWithRole(requestDto, "ROLE_USER");
+    }
 
+    public AuthenticationResponseDto registerWithRole(RegisterRequestDto requestDto, String roleValue)
+            throws UsernameExistsException, RoleNotFoundException {
         User checkUser = repo.findByEmail(requestDto.getEmail());
-        if (checkUser != null) {
+        if (checkUser != null)
             throw new UsernameExistsException("");
-        }
 
-        Role role = roleRepo.findByName(RoleEnum.ROLE_USER.toString());
-        if (role == null) {
-            role = Role.builder()
-                    .name(RoleEnum.ROLE_USER.toString())
-                    .build();
-            roleRepo.save(role);
-        }
+        Role role = service.findRoleByName(roleValue);
 
         Address address = addressService.createAddressForNewUser();
         User user = User.builder()
@@ -78,9 +71,7 @@ public class UserService {
         cartService.createCartForNewUser(user);
 
         String jwtToken = jwtService.generateToken(userDetailsService.loadUserByUsername(user.getEmail()));
-        return AuthenticationResponseDto.builder()
-                .token(jwtToken)
-                .build();
+        return service.getUserCredentials(user, jwtToken);
     }
 
     public AuthenticationResponseDto authenticate(AuthenticationRequestDto requestDto) {
@@ -92,9 +83,7 @@ public class UserService {
         );
         User user = repo.findByEmail(requestDto.getEmail());
         String jwtToken = jwtService.generateToken(userDetailsService.loadUserByUsername(user.getEmail()));
-        return AuthenticationResponseDto.builder()
-                .token(jwtToken)
-                .build();
+        return service.getUserCredentials(user, jwtToken);
     }
 
     public UserDto getAuthenticatedUser(String username) {

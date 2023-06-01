@@ -1,8 +1,9 @@
 package com.diploma.qoldan.model.user;
 
 import com.diploma.qoldan.model.address.Address;
+import com.diploma.qoldan.model.donation.Donation;
+import com.diploma.qoldan.model.organization.Organization;
 import com.diploma.qoldan.model.item.Item;
-import com.diploma.qoldan.model.product.Product;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -54,4 +55,9 @@ public class User {
     @JoinColumn(name = "address_id")
     private Address address;
 
+    @OneToOne(mappedBy = "user")
+    private Organization organization;
+
+    @OneToMany(mappedBy = "user")
+    private List<Donation> donations;
 }

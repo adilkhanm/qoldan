@@ -6,12 +6,17 @@ import com.diploma.qoldan.exception.cart.CartProductExistsException;
 import com.diploma.qoldan.exception.cart.CartProductNotFoundException;
 import com.diploma.qoldan.exception.category.CategoryExistsException;
 import com.diploma.qoldan.exception.category.CategoryNotFoundException;
+import com.diploma.qoldan.exception.donation.AnnouncementIsNotActiveException;
+import com.diploma.qoldan.exception.donation.DonationAnnouncementNotFoundException;
+import com.diploma.qoldan.exception.donation.DonationNotFoundException;
+import com.diploma.qoldan.exception.donation.DonationStatusNotFound;
 import com.diploma.qoldan.exception.image.ImageExistsException;
 import com.diploma.qoldan.exception.image.ImageNotFoundException;
 import com.diploma.qoldan.exception.order.OrderAlreadyConfirmedException;
 import com.diploma.qoldan.exception.order.OrderExistsException;
 import com.diploma.qoldan.exception.order.OrderRowNotFoundException;
 import com.diploma.qoldan.exception.order.OrderStatusNotFoundException;
+import com.diploma.qoldan.exception.organization.OrganizationNotFoundException;
 import com.diploma.qoldan.exception.product.*;
 import com.diploma.qoldan.exception.user.UserAddressNotFoundException;
 import com.diploma.qoldan.exception.user.UserHasNoAccessException;
@@ -28,7 +33,6 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @ControllerAdvice
-//@CrossOrigin(origins = "http://localhost:5001")
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {
@@ -40,7 +44,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             CartProductNotFoundException.class,
             OrderStatusNotFoundException.class,
             OrderRowNotFoundException.class,
-            ImageNotFoundException.class })
+            ImageNotFoundException.class,
+            OrganizationNotFoundException.class,
+            DonationAnnouncementNotFoundException.class,
+            DonationNotFoundException.class,
+            DonationStatusNotFound.class })
     protected ResponseEntity<?> handleNotFoundException(Exception exception, WebRequest request) {
         return handleExceptionInternal(exception, exception.getMessage(), new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
@@ -62,7 +70,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             ProductIsNotActiveException.class,
             CartIsEmptyException.class,
             ProductIsNotAvailableException.class,
-            OrderAlreadyConfirmedException.class })
+            OrderAlreadyConfirmedException.class,
+            AnnouncementIsNotActiveException.class })
     protected ResponseEntity<?> handleConflictExceptions(Exception exception, WebRequest request) {
         return handleExceptionInternal(exception, exception.getMessage(), new HttpHeaders(), HttpStatus.CONFLICT, request);
     }

@@ -50,4 +50,5 @@ public class UserController {
         service.updateUserAddress(auth.getName(), addressDto);
         return ResponseEntity.ok("Address was successfully updated");
     }
+
 }

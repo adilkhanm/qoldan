@@ -1,6 +1,7 @@
 package com.diploma.qoldan.model.item;
 
 import com.diploma.qoldan.model.category.Category;
+import com.diploma.qoldan.model.donation.Donation;
 import com.diploma.qoldan.model.image.Image;
 import com.diploma.qoldan.model.product.Product;
 import com.diploma.qoldan.model.user.User;
@@ -46,4 +47,6 @@ public class Item {
     @OneToOne(mappedBy = "item")
     private Product product;
 
+    @OneToOne(mappedBy = "item")
+    private Donation donation;
 }

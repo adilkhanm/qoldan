@@ -32,23 +32,38 @@ public class SecurityConfig {
                 .disable()
                 .authorizeHttpRequests()
 
-                .requestMatchers("/auth/**", "/swagger-ui/**", "/v3/**")
-                    .permitAll()
+                .requestMatchers("auth/register/privileged")
+                .hasAuthority("ROLE_ADMIN")
 
-                .requestMatchers(HttpMethod.GET, "/product/**", "/category", "/tag", "/product-type", "/image/**")
-                    .permitAll()
+                .requestMatchers("/auth/**", "/swagger-ui/**", "/v3/**")
+                .permitAll()
+
+                .requestMatchers("/donation-announcements/my")
+                .hasAuthority("ROLE_ORGANIZATION")
+
+                .requestMatchers(HttpMethod.GET, "/product/**", "/category", "/tag", "/product-type", "/image/**", "/donation-announcements/**")
+                .permitAll()
 
                 .requestMatchers("/category/**", "/tag/**", "/product-type/**")
-                    .hasAuthority("ROLE_ADMIN")
+                .hasAuthority("ROLE_ADMIN")
+
+                .requestMatchers("/donation-announcements/**", "/donations/to-organization/**")
+                .hasAuthority("ROLE_ORGANIZATION")
+
+                .requestMatchers(HttpMethod.POST, "/organizations/**")
+                .hasAuthority("ROLE_ADMIN")
+
+                .requestMatchers(HttpMethod.PUT, "/organizations/**")
+                .hasAnyAuthority("ROLE_ORGANIZATION", "ROLE_ADMIN")
 
                 .requestMatchers("/**")
-                    .hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                .hasAnyAuthority("ROLE_USER", "ROLE_ADMIN", "ROLE_ORGANIZATION")
 
                 .anyRequest()
-                    .authenticated()
+                .authenticated()
                 .and()
-                    .sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
